@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Dr. Pablo Vilela — Pedro Figueira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN SYSTEM TRIA ─────────────────────────────── */
+:root {
+  --bg-primary:    #0D0D0D;
+  --bg-surface:    #111111;
+  --bg-surface-2:  #1A1A1A;
+  --bg-pure-black: #000000;
+  --border:        #262626;
+  --border-strong: #383838;
+  --text-primary:  #F5F5F5;
+  --text-secondary:#E8E8E8;
+  --text-tertiary: #9CA3AF;
+  --text-quaternary:#666666;
+  --brand:         #B5FF00;
+  --brand-soft:    rgba(181,255,0,0.13);
+  --brand-glow:    rgba(181,255,0,0.35);
+  --alert:         #EF4444;
+  --alert-soft:    rgba(239,68,68,0.13);
+  --space-xs: 8px; --space-sm: 16px; --space-md: 24px;
+  --space-lg: 48px; --space-xl: 96px;
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 4px;
+}
+
+/* ─── RESET ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Lato', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── ANIMATIONS ─────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 var(--brand-glow); }
+  50%      { box-shadow: 0 0 0 8px transparent; }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.fade-up { animation: fadeUp 0.5s cubic-bezier(0.2,0.8,0.2,1) both; }
+.fade-up-d1 { animation-delay: 80ms; }
+.fade-up-d2 { animation-delay: 160ms; }
+.fade-up-d3 { animation-delay: 240ms; }
+.fade-up-d4 { animation-delay: 320ms; }
+
+/* ─── PROGRESS BAR ───────────────────────────────────── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--brand); z-index: 999;
+  transition: width 0.3s ease;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+.screen {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 0 0 80px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.screen::-webkit-scrollbar { display: none; }
+
+/* ─── TOP HEADER ─────────────────────────────────────── */
+.top-header {
+  background: var(--bg-primary);
+  padding: 52px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.top-header .eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--brand);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+}
+.top-header .eyebrow::before {
+  content: ''; display: block; width: 24px; height: 1px; background: var(--brand);
+}
+.top-header h1 { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; }
+.top-header .sub { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* ─── BOTTOM NAV ─────────────────────────────────────── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(13,13,13,0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border);
+  display: flex; z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 10px 4px; gap: 4px; cursor: pointer;
+  border: none; background: none; color: var(--text-quaternary);
+  font-family: 'Lato', sans-serif; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-item.active { color: var(--brand); }
+.nav-item svg { width: 20px; height: 20px; }
+
+/* ─── CARDS ──────────────────────────────────────────── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card + .card { margin-top: 12px; }
+
+/* ─── SECTION PADDING ────────────────────────────────── */
+.section { padding: 20px 20px 0; }
+.section + .section { padding-top: 12px; }
+
+/* ─── TAG / BADGE ────────────────────────────────────── */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 5px 10px; border-radius: var(--radius-xs);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tag-brand { background: var(--brand-soft); color: var(--brand); }
+.tag-alert { background: var(--alert-soft); color: var(--alert); }
+.tag-muted { background: rgba(255,255,255,0.05); color: var(--text-tertiary); }
+
+/* ─── MODAL OVERLAY ──────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 200;
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal-sheet {
+  width: 100%;
+  background: var(--bg-surface);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--border-strong);
+  padding: 0 24px 40px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.2,0.8,0.2,1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 12px auto 24px;
+}
+
+/* ─── STEP INDICATOR ─────────────────────────────────── */
+.step-indicator {
+  display: flex; gap: 6px; margin-bottom: 28px;
+}
+.step-dot {
+  height: 3px; flex: 1;
+  background: var(--border-strong);
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+.step-dot.active { background: var(--brand); }
+.step-dot.done   { background: rgba(181,255,0,0.4); }
+
+/* ─── CHECK-IN STEP ──────────────────────────────────── */
+.checkin-step { display: none; }
+.checkin-step.active { display: block; animation: fadeUp 0.4s cubic-bezier(0.2,0.8,0.2,1); }
+
+.checkin-label {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand); margin-bottom: 8px;
+}
+.checkin-question {
+  font-size: 26px; font-weight: 900; letter-spacing: -0.02em;
+  line-height: 1.2; margin-bottom: 28px;
+}
+
+/* Binary yes/no */
+.yn-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.yn-btn {
+  flex: 1; padding: 18px; border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface-2);
+  color: var(--text-secondary); font-family: 'Lato', sans-serif;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.yn-btn.selected-yes { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+.yn-btn.selected-no  { border-color: var(--alert); background: var(--alert-soft); color: var(--alert); }
+
+/* Star / intensity rating */
+.rating-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.rating-btn {
+  flex: 1; padding: 14px 8px; border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface-2);
+  color: var(--text-tertiary); font-family: 'Lato', sans-serif;
+  font-size: 13px; font-weight: 700; text-align: center; cursor: pointer;
+  transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.rating-btn.selected { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+
+/* Meal counter */
+.meal-counter {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 12px;
+}
+.meal-counter-value {
+  font-size: 64px; font-weight: 900; letter-spacing: -0.04em;
+  color: var(--brand); min-width: 80px; text-align: center;
+}
+.counter-btns { display: flex; flex-direction: column; gap: 10px; }
+.counter-btn {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface-2);
+  color: var(--text-primary); font-size: 24px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; transition: all 0.2s;
+}
+.counter-btn:active { background: var(--brand-soft); border-color: var(--brand); }
+.meal-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.meal-dot {
+  width: 12px; height: 12px; border-radius: 2px;
+  background: var(--border-strong); transition: background 0.2s;
+}
+.meal-dot.filled { background: var(--brand); }
+
+/* Score reveal */
+.score-reveal {
+  text-align: center; padding: 8px 0 16px;
+  animation: countUp 0.5s cubic-bezier(0.2,0.8,0.2,1);
+}
+.score-xp {
+  font-size: 80px; font-weight: 900; letter-spacing: -0.04em;
+  color: var(--brand); line-height: 1;
+}
+.score-label { font-size: 14px; color: var(--text-tertiary); margin-top: 6px; }
+.score-breakdown {
+  margin-top: 20px; display: flex; flex-direction: column; gap: 8px;
+}
+.score-line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; background: var(--bg-surface-2);
+  border-radius: var(--radius-sm); font-size: 14px;
+}
+.score-line span:last-child { color: var(--brand); font-weight: 700; }
+
+/* CTA button */
+.cta-btn {
+  width: 100%; padding: 18px; border-radius: var(--radius);
+  border: none; background: var(--brand);
+  color: #000; font-family: 'Lato', sans-serif;
+  font-size: 16px; font-weight: 900; letter-spacing: 0.04em;
+  cursor: pointer; margin-top: 24px;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.cta-btn:active { transform: scale(0.98); }
+.cta-btn-ghost {
+  width: 100%; padding: 16px; border-radius: var(--radius);
+  border: 1px solid var(--border-strong); background: transparent;
+  color: var(--text-tertiary); font-family: 'Lato', sans-serif;
+  font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── DASHBOARD ──────────────────────────────────────── */
+.streak-banner {
+  margin: 16px 20px 0;
+  background: linear-gradient(135deg, rgba(181,255,0,0.08), rgba(181,255,0,0.02));
+  border: 1px solid rgba(181,255,0,0.2);
+  border-radius: var(--radius); padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.streak-left { display: flex; flex-direction: column; }
+.streak-number {
+  font-size: 40px; font-weight: 900; color: var(--brand);
+  letter-spacing: -0.04em; line-height: 1;
+}
+.streak-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.streak-right { text-align: right; }
+.xp-total { font-size: 22px; font-weight: 900; color: var(--text-primary); }
+.xp-label { font-size: 11px; color: var(--text-quaternary); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.level-bar-wrap { margin-top: 10px; }
+.level-bar-bg {
+  height: 4px; background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.level-bar-fill {
+  height: 100%; background: var(--brand);
+  border-radius: 2px; transition: width 0.6s cubic-bezier(0.2,0.8,0.2,1);
+}
+
+/* Macro rings row */
+.macro-row {
+  display: flex; gap: 10px; margin: 12px 20px 0;
+}
+.macro-card {
+  flex: 1; background: var(--bg-surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 10px; text-align: center;
+}
+.macro-ring-wrap { position: relative; width: 56px; height: 56px; margin: 0 auto 8px; }
+.macro-ring-wrap svg { transform: rotate(-90deg); }
+.macro-ring-bg { stroke: var(--border); fill: none; }
+.macro-ring-fill { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.2,0.8,0.2,1); }
+.macro-ring-val {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: var(--text-primary);
+}
+.macro-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+.macro-target { font-size: 11px; font-weight: 700; margin-top: 2px; color: var(--text-quaternary); }
+
+/* Water tracker */
+.water-card {
+  margin: 12px 20px 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px;
+}
+.water-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.water-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+.water-current { font-size: 26px; font-weight: 900; color: var(--brand); }
+.water-target { font-size: 13px; color: var(--text-quaternary); }
+.water-bar-bg {
+  height: 6px; background: var(--border);
+  border-radius: 3px; overflow: hidden; margin-bottom: 14px;
+}
+.water-bar-fill {
+  height: 100%; background: var(--brand);
+  border-radius: 3px; transition: width 0.5s ease;
+}
+.water-btns { display: flex; gap: 8px; }
+.water-btn {
+  flex: 1; padding: 11px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong); background: var(--bg-surface-2);
+  color: var(--brand); font-family: 'Lato', sans-serif;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+}
+.water-btn:active { background: var(--brand-soft); }
+.water-btn-reset {
+  padding: 11px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-quaternary); font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Treino do dia card */
+.workout-card {
+  margin: 12px 20px 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px;
+}
+.workout-day-tag { margin-bottom: 10px; }
+.workout-title { font-size: 20px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 4px; }
+.workout-subtitle { font-size: 13px; color: var(--text-tertiary); }
+.workout-meta { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+/* Next supplement */
+.supp-next-card {
+  margin: 12px 20px 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.supp-next-left { flex: 1; }
+.supp-next-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 4px; }
+.supp-next-name { font-size: 16px; font-weight: 900; }
+.supp-next-dose { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
+.supp-next-time { font-size: 28px; font-weight: 900; color: var(--brand); letter-spacing: -0.02em; }
+
+/* Check-in prompt */
+.checkin-prompt {
+  margin: 16px 20px 0;
+  background: linear-gradient(135deg, rgba(181,255,0,0.06), transparent);
+  border: 1px solid rgba(181,255,0,0.25); border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.checkin-prompt-text { font-size: 15px; font-weight: 700; }
+.checkin-prompt-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.checkin-prompt-arrow { color: var(--brand); font-size: 20px; font-weight: 900; }
+.checkin-done-banner {
+  margin: 16px 20px 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.checkin-done-score { font-size: 24px; font-weight: 900; color: var(--brand); }
+.checkin-done-label { font-size: 13px; font-weight: 700; }
+.checkin-done-sub { font-size: 12px; color: var(--text-tertiary); }
+
+/* ─── NUTRIÇÃO ───────────────────────────────────────── */
+.macro-summary {
+  display: flex; gap: 8px; margin: 16px 20px 0; flex-wrap: wrap;
+}
+.macro-chip {
+  flex: 1; min-width: 70px;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px;
+  text-align: center;
+}
+.macro-chip-val { font-size: 18px; font-weight: 900; color: var(--brand); }
+.macro-chip-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-top: 2px; }
+
+.meal-timeline { padding: 16px 20px; }
+.meal-item { display: flex; gap: 16px; margin-bottom: 4px; }
+.meal-time-col { width: 52px; text-align: right; flex-shrink: 0; padding-top: 2px; }
+.meal-time { font-size: 12px; font-weight: 700; color: var(--brand); }
+.meal-time-sub { font-size: 10px; color: var(--text-quaternary); }
+.meal-line-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.meal-dot-circle {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid var(--brand); background: var(--bg-primary);
+  flex-shrink: 0; margin-top: 4px;
+}
+.meal-line { flex: 1; width: 1px; background: var(--border); margin: 4px 0; min-height: 20px; }
+.meal-content-col { flex: 1; padding-bottom: 20px; }
+.meal-title { font-size: 15px; font-weight: 900; margin-bottom: 10px; }
+.meal-food-item {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--text-secondary);
+}
+.meal-food-item:last-child { border-bottom: none; }
+.meal-food-name { flex: 1; padding-right: 8px; }
+.meal-food-macros { font-size: 11px; color: var(--text-quaternary); flex-shrink: 0; }
+.meal-supp-note {
+  margin-top: 8px; padding: 8px 10px;
+  background: var(--brand-soft); border-radius: var(--radius-xs);
+  font-size: 12px; color: var(--brand); font-weight: 700;
+}
+
+/* ─── SUPLEMENTOS ────────────────────────────────────── */
+.supp-group { padding: 16px 20px 0; }
+.supp-group-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-tertiary);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
+}
+.supp-group-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.supp-time-label { color: var(--brand); }
+
+.supp-item {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 8px; cursor: pointer;
+  transition: border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.supp-item.checked { border-color: rgba(181,255,0,0.3); background: rgba(181,255,0,0.04); }
+.supp-check {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 2px solid var(--border-strong); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.supp-item.checked .supp-check {
+  background: var(--brand); border-color: var(--brand);
+}
+.supp-check-icon { display: none; }
+.supp-item.checked .supp-check-icon { display: block; }
+.supp-info { flex: 1; }
+.supp-name { font-size: 15px; font-weight: 700; }
+.supp-dose { font-size: 12px; color: var(--brand); font-weight: 700; margin-top: 1px; }
+.supp-benefit { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+.supp-alert {
+  margin: 0 20px 8px;
+  background: var(--alert-soft); border-radius: var(--radius-xs);
+  padding: 10px 14px; font-size: 12px; color: var(--alert);
+  font-weight: 700; display: flex; align-items: center; gap: 8px;
+}
+
+/* ─── TREINOS ─────────────────────────────────────────── */
+.day-selector {
+  display: flex; gap: 6px; padding: 16px 20px 0; overflow-x: auto;
+  scrollbar-width: none;
+}
+.day-selector::-webkit-scrollbar { display: none; }
+.day-btn {
+  flex-shrink: 0; padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  font-family: 'Lato', sans-serif; font-size: 12px; font-weight: 700;
+  color: var(--text-tertiary); cursor: pointer;
+  transition: all 0.2s; text-align: center; min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+.day-btn.active {
+  border-color: var(--brand); background: var(--brand-soft); color: var(--brand);
+}
+.day-btn.today { border-color: rgba(181,255,0,0.4); }
+.day-btn-name { display: block; text-transform: uppercase; letter-spacing: 0.04em; }
+.day-btn-type { display: block; font-size: 10px; margin-top: 2px; color: var(--text-quaternary); }
+.day-btn.active .day-btn-type { color: var(--brand); }
+
+.treino-header { margin: 16px 20px 0; }
+.treino-group { font-size: 12px; color: var(--brand); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.treino-name { font-size: 24px; font-weight: 900; letter-spacing: -0.02em; }
+
+.exercise-list { padding: 12px 20px; }
+.exercise-item {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 8px;
+}
+.exercise-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.exercise-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.exercise-series {
+  font-size: 13px; font-weight: 900; color: var(--brand);
+  background: var(--brand-soft); padding: 3px 8px;
+  border-radius: var(--radius-xs);
+}
+.exercise-obs { font-size: 12px; color: var(--text-tertiary); flex: 1; }
+
+.treino-note {
+  margin: 0 20px 12px;
+  background: var(--bg-surface); border-left: 3px solid var(--brand);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 14px; font-size: 13px; color: var(--text-secondary);
+}
+.descanso-card {
+  margin: 20px 20px 0;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; text-align: center;
+  color: var(--text-tertiary); font-size: 14px;
+}
+.descanso-icon { font-size: 32px; margin-bottom: 8px; }
+.descanso-title { font-size: 16px; font-weight: 900; color: var(--text-primary); margin-bottom: 4px; }
+
+/* ─── PERFIL ─────────────────────────────────────────── */
+.profile-hero {
+  margin: 16px 20px 0;
+  background: linear-gradient(135deg, rgba(181,255,0,0.06), transparent);
+  border: 1px solid rgba(181,255,0,0.15);
+  border-radius: var(--radius); padding: 20px;
+}
+.profile-name { font-size: 28px; font-weight: 900; letter-spacing: -0.02em; }
+.profile-sub { font-size: 13px; color: var(--text-tertiary); margin-top: 4px; }
+.profile-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin: 12px 20px 0;
+}
+.info-item {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px;
+}
+.info-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-bottom: 4px; }
+.info-value { font-size: 18px; font-weight: 900; }
+.info-value.brand { color: var(--brand); }
+.info-value.alert { color: var(--alert); }
+
+.section-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-tertiary);
+  margin: 20px 20px 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.vit-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.vit-name { font-weight: 700; }
+.vit-dose { color: var(--brand); font-weight: 700; font-size: 13px; }
+.vit-benefit { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* ─── VIDEO MODAL ────────────────────────────────────── */
+.video-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 300;
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.video-modal-overlay.open { opacity: 1; pointer-events: all; }
+.video-sheet {
+  width: 100%;
+  background: var(--bg-surface);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--border-strong);
+  padding: 0 0 32px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.2,0.8,0.2,1);
+}
+.video-modal-overlay.open .video-sheet { transform: translateY(0); }
+.video-handle {
+  width: 36px; height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px; margin: 12px auto 0;
+}
+.video-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 16px 20px 12px;
+}
+.video-exercise-name { font-size: 16px; font-weight: 900; flex: 1; padding-right: 12px; line-height: 1.3; }
+.video-close-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface-2);
+  color: var(--text-tertiary); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.video-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--brand); margin-bottom: 4px;
+}
+.video-embed-wrap {
+  position: relative; width: 100%;
+  background: #000;
+  overflow: hidden;
+}
+.video-embed-wrap iframe {
+  width: 100%; height: 420px;
+  border: none; display: block;
+}
+.video-ig-link {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin: 12px 20px 0;
+  padding: 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-surface-2);
+  color: var(--text-tertiary); font-size: 13px; font-weight: 700;
+  text-decoration: none;
+}
+
+/* ─── SUBSTITUIÇÕES ──────────────────────────────────── */
+.subs-toggle {
+  display: flex; gap: 0; margin: 12px 20px 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.subs-toggle-btn {
+  flex: 1; padding: 11px 8px;
+  border: none; background: transparent;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--text-tertiary);
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.subs-toggle-btn.active {
+  background: var(--brand); color: #000;
+}
+.sub-item {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 7px 0 7px 12px; border-bottom: 1px solid rgba(181,255,0,0.08);
+  font-size: 12px; color: var(--text-tertiary);
+  background: rgba(181,255,0,0.03);
+}
+.sub-item:last-child { border-bottom: none; }
+.sub-bullet {
+  color: var(--brand); font-size: 10px;
+  margin-right: 6px; flex-shrink: 0;
+}
+.sub-name { flex: 1; padding-right: 8px; }
+.sub-macros { font-size: 10px; color: var(--text-quaternary); flex-shrink: 0; }
+.sub-group {
+  margin-top: 4px;
+  border-left: 2px solid rgba(181,255,0,0.25);
+  border-radius: 0 0 4px 4px;
+}
+.subs-hidden { display: none; }
+
+/* ─── MICRO UX ───────────────────────────────────────── */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="progress-bar" style="width:20%"></div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODAL CHECK-IN                                      -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="checkin-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+
+    <!-- Step indicators -->
+    <div class="step-indicator" id="step-dots">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+
+    <!-- PASSO 1: Sono -->
+    <div class="checkin-step active" id="step-0">
+      <div class="checkin-label">Passo 1 de 4 — Sono</div>
+      <div class="checkin-question">Como você dormiu ontem à noite?</div>
+      <div class="yn-row">
+        <button class="yn-btn" onclick="selectYN(0,'yes')" id="s0-yes">Dormi bem</button>
+        <button class="yn-btn" onclick="selectYN(0,'no')"  id="s0-no">Mal ou pouco</button>
+      </div>
+      <div style="margin-top:16px">
+        <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:10px;font-weight:700">Qualidade do sono</div>
+        <div class="rating-row">
+          <button class="rating-btn" onclick="selectRating(0,1)" id="r0-1">1<br><span style="font-size:10px">Péssimo</span></button>
+          <button class="rating-btn" onclick="selectRating(0,2)" id="r0-2">2</button>
+          <button class="rating-btn" onclick="selectRating(0,3)" id="r0-3">3<br><span style="font-size:10px">Ok</span></button>
+          <button class="rating-btn" onclick="selectRating(0,4)" id="r0-4">4</button>
+          <button class="rating-btn" onclick="selectRating(0,5)" id="r0-5">5<br><span style="font-size:10px">Ótimo</span></button>
+        </div>
+      </div>
+      <button class="cta-btn" onclick="nextStep(1)">Próximo</button>
+    </div>
+
+    <!-- PASSO 2: Treino -->
+    <div class="checkin-step" id="step-1">
+      <div class="checkin-label">Passo 2 de 4 — Treino</div>
+      <div class="checkin-question">Você treinou hoje?</div>
+      <div class="yn-row">
+        <button class="yn-btn" onclick="selectYN(1,'yes')" id="s1-yes">Sim, treinei</button>
+        <button class="yn-btn" onclick="selectYN(1,'no')"  id="s1-no">Não treinei</button>
+      </div>
+      <div id="intensity-section" style="margin-top:16px;display:none">
+        <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:10px;font-weight:700">Intensidade do treino</div>
+        <div class="rating-row">
+          <button class="rating-btn" onclick="selectRating(1,1)" id="r1-1">Leve</button>
+          <button class="rating-btn" onclick="selectRating(1,2)" id="r1-2">Moderada</button>
+          <button class="rating-btn" onclick="selectRating(1,3)" id="r1-3">Alta</button>
+        </div>
+      </div>
+      <button class="cta-btn" onclick="nextStep(2)">Próximo</button>
+    </div>
+
+    <!-- PASSO 3: Alimentação -->
+    <div class="checkin-step" id="step-2">
+      <div class="checkin-label">Passo 3 de 4 — Alimentação</div>
+      <div class="checkin-question">Quantas refeições corretas você fez hoje?</div>
+      <div class="meal-counter">
+        <div>
+          <div class="meal-counter-value" id="meal-count">0</div>
+          <div style="font-size:12px;color:var(--text-tertiary)">de 6 refeições</div>
+        </div>
+        <div class="counter-btns">
+          <button class="counter-btn" onclick="changeMeals(1)">+</button>
+          <button class="counter-btn" onclick="changeMeals(-1)">−</button>
+        </div>
+      </div>
+      <div class="meal-dots" id="meal-dots">
+        <div class="meal-dot" id="md-0"></div>
+        <div class="meal-dot" id="md-1"></div>
+        <div class="meal-dot" id="md-2"></div>
+        <div class="meal-dot" id="md-3"></div>
+        <div class="meal-dot" id="md-4"></div>
+        <div class="meal-dot" id="md-5"></div>
+      </div>
+      <button class="cta-btn" onclick="nextStep(3)">Próximo</button>
+    </div>
+
+    <!-- PASSO 4: Score -->
+    <div class="checkin-step" id="step-3">
+      <div class="checkin-label">Score do dia</div>
+      <div class="checkin-question">Aqui está o seu resultado de hoje!</div>
+      <div class="score-reveal">
+        <div class="score-xp" id="score-display">0</div>
+        <div class="score-label">XP ganhos hoje</div>
+      </div>
+      <div class="score-breakdown" id="score-breakdown"></div>
+      <button class="cta-btn" onclick="finishCheckin()">Ver meu painel</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODAL VÍDEO — EXECUÇÃO DO EXERCÍCIO                 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="video-modal-overlay" id="video-modal" onclick="closeVideoModal(event)">
+  <div class="video-sheet">
+    <div class="video-handle"></div>
+    <div class="video-header">
+      <div>
+        <div class="video-label">Execução do exercício</div>
+        <div class="video-exercise-name" id="video-exercise-name">—</div>
+      </div>
+      <button class="video-close-btn" onclick="closeVideoModal()">✕</button>
+    </div>
+    <div class="video-embed-wrap">
+      <iframe id="video-iframe"
+        src=""
+        allowfullscreen
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+        scrolling="no">
+      </iframe>
+    </div>
+    <a class="video-ig-link" href="https://www.instagram.com/p/DUWhPhxlNm7/" target="_blank" rel="noopener">
+      ↗ Abrir no Instagram
+    </a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- APP SHELL                                           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="app">
+
+  <!-- ── TAB: HOJE ─────────────────────────────────── -->
+  <div class="screen" id="tab-hoje" style="display:flex;flex-direction:column;">
+
+    <div class="top-header">
+      <div class="eyebrow">Dr. Pablo Vilela</div>
+      <h1>Pedro Figueira</h1>
+      <div class="sub" id="hoje-date">Carregando...</div>
+    </div>
+
+    <!-- Check-in prompt / done banner -->
+    <div id="checkin-prompt-wrap">
+      <div class="checkin-prompt fade-up" onclick="openCheckin()">
+        <div>
+          <div class="checkin-prompt-text">Check-in diário</div>
+          <div class="checkin-prompt-sub">Registre seu dia e ganhe XP</div>
+        </div>
+        <div class="checkin-prompt-arrow">→</div>
+      </div>
+    </div>
+    <div id="checkin-done-wrap" class="hidden">
+      <div class="checkin-done-banner fade-up">
+        <div class="checkin-done-score" id="done-score-display">0 XP</div>
+        <div>
+          <div class="checkin-done-label">Check-in concluído!</div>
+          <div class="checkin-done-sub" id="done-streak-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak / XP banner -->
+    <div class="streak-banner fade-up fade-up-d1">
+      <div class="streak-left">
+        <div class="streak-number" id="streak-display">0</div>
+        <div class="streak-sub">dias consecutivos</div>
+        <div class="level-bar-wrap" style="width:100px;margin-top:8px">
+          <div style="font-size:10px;color:var(--text-quaternary);margin-bottom:4px">
+            Nível <span id="level-display">1</span>
+          </div>
+          <div class="level-bar-bg"><div class="level-bar-fill" id="level-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="streak-right">
+        <div class="xp-total" id="xp-display">0</div>
+        <div class="xp-label">XP total</div>
+      </div>
+    </div>
+
+    <!-- Macro rings -->
+    <div class="macro-row fade-up fade-up-d2">
+      <div class="macro-card">
+        <div class="macro-ring-wrap">
+          <svg viewBox="0 0 56 56" width="56" height="56">
+            <circle class="macro-ring-bg" cx="28" cy="28" r="22" stroke-width="4"/>
+            <circle class="macro-ring-fill" cx="28" cy="28" r="22" stroke-width="4"
+              stroke="#B5FF00" stroke-dasharray="138.2" stroke-dashoffset="138.2" id="ring-prot"/>
+          </svg>
+          <div class="macro-ring-val">185g</div>
+        </div>
+        <div class="macro-name">Prot.</div>
+        <div class="macro-target">meta/dia</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-ring-wrap">
+          <svg viewBox="0 0 56 56" width="56" height="56">
+            <circle class="macro-ring-bg" cx="28" cy="28" r="22" stroke-width="4"/>
+            <circle class="macro-ring-fill" cx="28" cy="28" r="22" stroke-width="4"
+              stroke="#B5FF00" stroke-dasharray="138.2" stroke-dashoffset="138.2" id="ring-carb"/>
+          </svg>
+          <div class="macro-ring-val">335g</div>
+        </div>
+        <div class="macro-name">Carb.</div>
+        <div class="macro-target">meta/dia</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-ring-wrap">
+          <svg viewBox="0 0 56 56" width="56" height="56">
+            <circle class="macro-ring-bg" cx="28" cy="28" r="22" stroke-width="4"/>
+            <circle class="macro-ring-fill" cx="28" cy="28" r="22" stroke-width="4"
+              stroke="#B5FF00" stroke-dasharray="138.2" stroke-dashoffset="138.2" id="ring-fat"/>
+          </svg>
+          <div class="macro-ring-val">84g</div>
+        </div>
+        <div class="macro-name">Gord.</div>
+        <div class="macro-target">meta/dia</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-ring-wrap">
+          <svg viewBox="0 0 56 56" width="56" height="56">
+            <circle class="macro-ring-bg" cx="28" cy="28" r="22" stroke-width="4"/>
+            <circle class="macro-ring-fill" cx="28" cy="28" r="22" stroke-width="4"
+              stroke="#B5FF00" stroke-dasharray="138.2" stroke-dashoffset="138.2" id="ring-kcal"/>
+          </svg>
+          <div class="macro-ring-val">2700</div>
+        </div>
+        <div class="macro-name">kcal</div>
+        <div class="macro-target">meta/dia</div>
+      </div>
+    </div>
+
+    <!-- Water tracker -->
+    <div class="water-card fade-up fade-up-d3">
+      <div class="water-top">
+        <div>
+          <div class="water-title">Hidratação</div>
+          <div class="water-current"><span id="water-current">0</span> ml</div>
+        </div>
+        <div style="text-align:right">
+          <div class="water-target">meta: 3.360 ml</div>
+          <div style="font-size:13px;color:var(--text-tertiary);margin-top:4px"><span id="water-pct">0</span>%</div>
+        </div>
+      </div>
+      <div class="water-bar-bg"><div class="water-bar-fill" id="water-bar" style="width:0%"></div></div>
+      <div class="water-btns">
+        <button class="water-btn" onclick="addWater(200)">+200 ml</button>
+        <button class="water-btn" onclick="addWater(350)">+350 ml</button>
+        <button class="water-btn" onclick="addWater(500)">+500 ml</button>
+        <button class="water-btn-reset" onclick="resetWater()">↺</button>
+      </div>
+    </div>
+
+    <!-- Treino do dia -->
+    <div class="workout-card fade-up fade-up-d4">
+      <div class="workout-day-tag"><span class="tag tag-brand" id="treino-tag">TREINO A</span></div>
+      <div class="treino-group" id="treino-group-label">Peito + Tríceps + Abdômen</div>
+      <div class="workout-title" id="treino-day-label">Segunda & Quinta</div>
+      <div class="workout-meta" id="treino-meta"></div>
+    </div>
+
+    <!-- Next supplement -->
+    <div class="supp-next-card fade-up">
+      <div class="supp-next-left">
+        <div class="supp-next-label">Próximo suplemento</div>
+        <div class="supp-next-name" id="next-supp-name">Vitamina D3</div>
+        <div class="supp-next-dose" id="next-supp-dose">2.000 UI</div>
+      </div>
+      <div class="supp-next-time" id="next-supp-time">06:00</div>
+    </div>
+
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- ── TAB: NUTRIÇÃO ─────────────────────────────── -->
+  <div class="screen hidden" id="tab-nutri">
+    <div class="top-header">
+      <div class="eyebrow">Protocolo alimentar</div>
+      <h1>Nutrição</h1>
+      <div class="sub">≈ 2.700 kcal/dia</div>
+    </div>
+
+    <div class="subs-toggle">
+      <button class="subs-toggle-btn active" id="btn-original" onclick="setSubs(false)">Plano Original</button>
+      <button class="subs-toggle-btn" id="btn-subs" onclick="setSubs(true)">Substituições</button>
+    </div>
+
+    <div class="macro-summary">
+      <div class="macro-chip">
+        <div class="macro-chip-val">185g</div>
+        <div class="macro-chip-name">Proteína</div>
+      </div>
+      <div class="macro-chip">
+        <div class="macro-chip-val">335g</div>
+        <div class="macro-chip-name">Carboidrato</div>
+      </div>
+      <div class="macro-chip">
+        <div class="macro-chip-val">84g</div>
+        <div class="macro-chip-name">Gordura</div>
+      </div>
+      <div class="macro-chip">
+        <div class="macro-chip-val">2700</div>
+        <div class="macro-chip-name">kcal</div>
+      </div>
+    </div>
+
+    <div class="meal-timeline">
+
+      <!-- 06:00 -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time">06:00</div><div class="meal-time-sub">1ª Ref.</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle"></div><div class="meal-line"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Café da Manhã</div>
+          <div class="meal-food-item"><span class="meal-food-name">Ovo mexido/cozido — 3 inteiros</span><span class="meal-food-macros">18g P · 0g C · 210kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Omelete de claras — 5 claras</span><span class="sub-macros">18g P · 0g C · 90kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Iogurte grego integral — 200g</span><span class="sub-macros">18g P · 8g C · 180kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Pão integral — 2 fatias (60g)</span><span class="meal-food-macros">5g P · 28g C · 160kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Tapioca — 2 unidades (60g)</span><span class="sub-macros">0g P · 30g C · 120kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Batata doce cozida — 100g</span><span class="sub-macros">2g P · 27g C · 114kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Uva + Banana + Maçã</span><span class="meal-food-macros">2g P · 45g C · 185kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Mamão + Morango — 200g</span><span class="sub-macros">1g P · 40g C · 160kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Manga + Kiwi — 200g</span><span class="sub-macros">2g P · 42g C · 170kcal</span></div></div>
+          <div class="meal-supp-note">+ Vitamina D3 · B Complex · Zinco</div>
+        </div>
+      </div>
+
+      <!-- Pré-treino -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time" style="color:var(--alert)">Pré</div><div class="meal-time-sub">treino</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle" style="border-color:var(--alert)"></div><div class="meal-line"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Pré-Treino</div>
+          <div class="meal-food-item"><span class="meal-food-name">Vaporx5 MusclePharm — 1 dose</span><span class="meal-food-macros">0g P · 20g C · 90kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Café preto + 5g BCAAs</span><span class="sub-macros">5g P · 0g C · 25kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Cafeína 200mg + carboidrato simples</span><span class="sub-macros">0g P · 20g C · 80kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Banana — 1 unidade (90g)</span><span class="meal-food-macros">1g P · 23g C · 95kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Tâmara — 3 unidades</span><span class="sub-macros">1g P · 22g C · 93kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Dextrose — 25g com água</span><span class="sub-macros">0g P · 25g C · 100kcal</span></div></div>
+        </div>
+      </div>
+
+      <!-- Pós-treino -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time">Pós</div><div class="meal-time-sub">treino</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle"></div><div class="meal-line"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Pós-Treino</div>
+          <div class="meal-food-item"><span class="meal-food-name">Whey Protein — 30g (1 scoop)</span><span class="meal-food-macros">27g P · 3g C · 130kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Whey Isolado — 25g</span><span class="sub-macros">25g P · 1g C · 110kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Albumina — 40g</span><span class="sub-macros">29g P · 0g C · 120kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">EAA9 — 10g</span><span class="meal-food-macros">8g P · 2g C · 40kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">BCAAs — 10g</span><span class="sub-macros">7g P · 0g C · 35kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Leucina 3g + Glutamina 5g</span><span class="sub-macros">3g P · 0g C · 30kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Creatina — 5g</span><span class="meal-food-macros">suporte à recuperação</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Creatina HCl — 3g</span><span class="sub-macros">mesma eficácia, menor dose</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Creatina Malato — 5g</span><span class="sub-macros">absorção facilitada</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">HMB — 1–3g</span><span class="meal-food-macros">anticatabólico</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Leucina — 3g</span><span class="sub-macros">anticatabólico similar</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Glutamina — 5g</span><span class="sub-macros">recuperação e intestino</span></div></div>
+        </div>
+      </div>
+
+      <!-- 13:50 -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time">13:50</div><div class="meal-time-sub">Almoço</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle"></div><div class="meal-line"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Almoço</div>
+          <div class="meal-food-item"><span class="meal-food-name">Arroz branco/integral — 4 col. (120g)</span><span class="meal-food-macros">3g P · 44g C · 185kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Batata doce cozida — 150g</span><span class="sub-macros">2g P · 33g C · 140kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Quinoa cozida — 120g</span><span class="sub-macros">5g P · 20g C · 130kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Batata inglesa air fryer — 2 méd. (150g)</span><span class="meal-food-macros">3g P · 33g C · 140kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Mandioca cozida — 100g</span><span class="sub-macros">1g P · 28g C · 125kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Inhame cozido — 150g</span><span class="sub-macros">3g P · 36g C · 155kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Frango/filé mignon/tilápia — 130–150g</span><span class="meal-food-macros">33g P · 0g C · 190kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Atum em água — 150g</span><span class="sub-macros">35g P · 0g C · 160kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Carne moída magra — 130g</span><span class="sub-macros">30g P · 0g C · 200kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Legumes refogados — 4 col. (100g)</span><span class="meal-food-macros">2g P · 10g C · 50kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Abobrinha grelhada — 100g</span><span class="sub-macros">1g P · 7g C · 34kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Brócolis no vapor — 100g</span><span class="sub-macros">3g P · 7g C · 34kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Folha verde + azeite (3g)</span><span class="meal-food-macros">1g P · 0g C · 27kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Rúcula + suco de limão</span><span class="sub-macros">1g P · 1g C · 10kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Espinafre + azeite — mesma porção</span><span class="sub-macros">2g P · 1g C · 30kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Abacaxi sobremesa — 2 fatias (150g)</span><span class="meal-food-macros">1g P · 20g C · 82kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Manga — 150g</span><span class="sub-macros">1g P · 25g C · 100kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Melancia — 200g</span><span class="sub-macros">1g P · 18g C · 72kcal</span></div></div>
+          <div class="meal-supp-note">+ Ômega-3 · Multivitamínico · Vit. C · Magnésio</div>
+        </div>
+      </div>
+
+      <!-- 16:00 -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time">16:00</div><div class="meal-time-sub">Lanche</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle"></div><div class="meal-line"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Café da Tarde</div>
+          <div class="meal-food-item"><span class="meal-food-name">Whey Protein — 30g (1 scoop)</span><span class="meal-food-macros">27g P · 3g C · 130kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Albumina — 40g</span><span class="sub-macros">29g P · 0g C · 120kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Iogurte grego — 200g</span><span class="sub-macros">18g P · 8g C · 180kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Maçã — 1 unidade (150g)</span><span class="meal-food-macros">0g P · 20g C · 78kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Pera — 1 unidade (150g)</span><span class="sub-macros">0g P · 20g C · 75kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Laranja — 1 unidade (180g)</span><span class="sub-macros">1g P · 21g C · 90kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Banana — 1 unidade (90g)</span><span class="meal-food-macros">1g P · 23g C · 95kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Tâmara — 3 unidades</span><span class="sub-macros">1g P · 22g C · 93kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Uva — 150g</span><span class="sub-macros">1g P · 25g C · 104kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Castanha de caju — 30g</span><span class="meal-food-macros">5g P · 9g C · 165kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Amendoim torrado — 30g</span><span class="sub-macros">8g P · 5g C · 170kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Amêndoas — 25g</span><span class="sub-macros">5g P · 5g C · 145kcal</span></div></div>
+        </div>
+      </div>
+
+      <!-- 20:00 -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time">20:00</div><div class="meal-time-sub">Jantar</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle"></div><div class="meal-line"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Jantar</div>
+          <div class="meal-food-item"><span class="meal-food-name">Arroz branco/integral — 3 col. (90g)</span><span class="meal-food-macros">2g P · 33g C · 140kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Batata doce — 150g</span><span class="sub-macros">2g P · 33g C · 140kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Macarrão integral — 60g cru</span><span class="sub-macros">4g P · 38g C · 200kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Chips de batata air fryer — 1 méd. (120g)</span><span class="meal-food-macros">2g P · 26g C · 112kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Batata doce air fryer — 120g</span><span class="sub-macros">2g P · 26g C · 110kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Mandioca air fryer — 100g</span><span class="sub-macros">1g P · 24g C · 108kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Frango/filé mignon/tilápia — 120g</span><span class="meal-food-macros">29g P · 0g C · 165kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Atum em água — 120g</span><span class="sub-macros">28g P · 0g C · 128kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Ovos inteiros — 3 unidades</span><span class="sub-macros">18g P · 0g C · 210kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Legumes + folha verde</span><span class="meal-food-macros">3g P · 8g C · 50kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Abobrinha + espinafre — mesma porção</span><span class="sub-macros">2g P · 6g C · 36kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Cenoura + rúcula — mesma porção</span><span class="sub-macros">2g P · 8g C · 40kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Abacaxi — 1 fatia (100g)</span><span class="meal-food-macros">0g P · 13g C · 55kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Morango — 150g</span><span class="sub-macros">1g P · 12g C · 48kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Kiwi — 100g</span><span class="sub-macros">1g P · 14g C · 61kcal</span></div></div>
+        </div>
+      </div>
+
+      <!-- 22:00 -->
+      <div class="meal-item">
+        <div class="meal-time-col"><div class="meal-time">22:00</div><div class="meal-time-sub">Ceia</div></div>
+        <div class="meal-line-col"><div class="meal-dot-circle"></div><div class="meal-line" style="display:none"></div></div>
+        <div class="meal-content-col">
+          <div class="meal-title">Shake Noturno</div>
+          <div class="meal-food-item"><span class="meal-food-name">Farinha de arroz branco — 60g</span><span class="meal-food-macros">2g P · 48g C · 218kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Aveia em flocos — 50g</span><span class="sub-macros">7g P · 34g C · 190kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Maltodextrina — 50g</span><span class="sub-macros">0g P · 48g C · 200kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Whey Protein — 30g (1 scoop)</span><span class="meal-food-macros">25g P · 3g C · 120kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Caseína — 30g</span><span class="sub-macros">24g P · 3g C · 120kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Albumina — 40g</span><span class="sub-macros">29g P · 0g C · 120kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Castanha de caju — 20g</span><span class="meal-food-macros">3g P · 6g C · 110kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Pasta de amendoim — 20g</span><span class="sub-macros">5g P · 5g C · 120kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Amêndoas — 20g</span><span class="sub-macros">4g P · 4g C · 116kcal</span></div></div>
+          <div class="meal-food-item"><span class="meal-food-name">Morango — 80g</span><span class="meal-food-macros">1g P · 7g C · 26kcal</span></div>
+          <div class="sub-group subs-hidden"><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Framboesa — 80g</span><span class="sub-macros">1g P · 8g C · 40kcal</span></div><div class="sub-item"><span class="sub-bullet">↳</span><span class="sub-name">Mirtilo — 80g</span><span class="sub-macros">1g P · 10g C · 46kcal</span></div></div>
+          <div class="meal-supp-note">+ Melatonina às 19:00 (separado)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB: SUPLEMENTOS ──────────────────────────── -->
+  <div class="screen hidden" id="tab-supl">
+    <div class="top-header">
+      <div class="eyebrow">Protocolo diário</div>
+      <h1>Suplementos</h1>
+      <div class="sub">Marque conforme tomar</div>
+    </div>
+
+    <div class="supp-group">
+      <div class="supp-group-title"><span class="supp-time-label">06:00</span> Manhã</div>
+      <div class="supp-item" id="supp-0" onclick="toggleSupp(0)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Vitamina D3</div>
+          <div class="supp-dose">2.000 UI — com a 1ª refeição</div>
+          <div class="supp-benefit">Imunidade, testosterona, força e absorção de cálcio</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-1" onclick="toggleSupp(1)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Vitamina B Complex</div>
+          <div class="supp-dose">1 cápsula — com a 1ª refeição</div>
+          <div class="supp-benefit">Energia, metabolismo muscular e sistema nervoso</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-2" onclick="toggleSupp(2)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Zinco</div>
+          <div class="supp-dose">25–30 mg — longe do cálcio</div>
+          <div class="supp-benefit">Síntese de testosterona e recuperação muscular</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supp-group">
+      <div class="supp-group-title"><span class="supp-time-label" style="color:var(--alert)">Pré-treino</span> 30 min antes</div>
+      <div class="supp-item" id="supp-3" onclick="toggleSupp(3)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">MusclePharm Vaporx5</div>
+          <div class="supp-dose">1 dose — apenas dias de treino</div>
+          <div class="supp-benefit">Energia, foco, vasodilatação e performance</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supp-group">
+      <div class="supp-group-title"><span class="supp-time-label">Pós-treino</span> até 30 min após</div>
+      <div class="supp-item" id="supp-4" onclick="toggleSupp(4)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Whey Protein</div>
+          <div class="supp-dose">30g — 1 scoop com água 300ml</div>
+          <div class="supp-benefit">Síntese proteica imediata e recuperação</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-5" onclick="toggleSupp(5)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Creatina</div>
+          <div class="supp-dose">5g — qualquer hora, todo dia</div>
+          <div class="supp-benefit">Força, volume muscular e recuperação</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-6" onclick="toggleSupp(6)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">EAA9</div>
+          <div class="supp-dose">10g — com água (dias de treino)</div>
+          <div class="supp-benefit">Aminoácidos essenciais — síntese muscular completa</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-7" onclick="toggleSupp(7)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">HMB</div>
+          <div class="supp-dose">1–3g — pós-treino ou à noite</div>
+          <div class="supp-benefit">Reduz catabolismo, preserva e constrói massa magra</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supp-group">
+      <div class="supp-group-title"><span class="supp-time-label">13:50</span> Almoço</div>
+      <div class="supp-item" id="supp-8" onclick="toggleSupp(8)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Ômega-3</div>
+          <div class="supp-dose">2g — no almoço com gordura</div>
+          <div class="supp-benefit">Anti-inflamatório, articulações, foco e humor</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-9" onclick="toggleSupp(9)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Multivitamínico A a Z</div>
+          <div class="supp-dose">1 cápsula — no almoço</div>
+          <div class="supp-benefit">Suporte vitamínico completo para atleta em alta demanda</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-10" onclick="toggleSupp(10)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Vitamina C</div>
+          <div class="supp-dose">500 mg — no almoço</div>
+          <div class="supp-benefit">Síntese de colágeno, imunidade e recuperação</div>
+        </div>
+      </div>
+      <div class="supp-item" id="supp-11" onclick="toggleSupp(11)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Magnésio</div>
+          <div class="supp-dose">200 mg — almoço ou jantar</div>
+          <div class="supp-benefit">Contração muscular, energia celular, reduz estresse</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supp-group">
+      <div class="supp-group-title"><span class="supp-time-label">19:00</span> Noite</div>
+      <div class="supp-alert">⚠ Não exceder a dose de Melatonina</div>
+      <div class="supp-item" id="supp-12" onclick="toggleSupp(12)">
+        <div class="supp-check"><svg class="supp-check-icon" width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="supp-info">
+          <div class="supp-name">Melatonina</div>
+          <div class="supp-dose">0,25 mg — às 19:00</div>
+          <div class="supp-benefit">Indução do sono, recuperação noturna e antioxidante</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- ── TAB: TREINOS ──────────────────────────────── -->
+  <div class="screen hidden" id="tab-treino">
+    <div class="top-header">
+      <div class="eyebrow">Periodização</div>
+      <h1>Treinos</h1>
+      <div class="sub">Segunda a Sábado · 6x/semana</div>
+    </div>
+
+    <div class="day-selector" id="day-selector">
+      <button class="day-btn" id="dbtn-1" onclick="selectDay(1)"><span class="day-btn-name">Seg</span><span class="day-btn-type">A</span></button>
+      <button class="day-btn" id="dbtn-2" onclick="selectDay(2)"><span class="day-btn-name">Ter</span><span class="day-btn-type">B</span></button>
+      <button class="day-btn" id="dbtn-3" onclick="selectDay(3)"><span class="day-btn-name">Qua</span><span class="day-btn-type">C</span></button>
+      <button class="day-btn" id="dbtn-4" onclick="selectDay(4)"><span class="day-btn-name">Qui</span><span class="day-btn-type">A</span></button>
+      <button class="day-btn" id="dbtn-5" onclick="selectDay(5)"><span class="day-btn-name">Sex</span><span class="day-btn-type">B</span></button>
+      <button class="day-btn" id="dbtn-6" onclick="selectDay(6)"><span class="day-btn-name">Sáb</span><span class="day-btn-type">C</span></button>
+      <button class="day-btn" id="dbtn-0" onclick="selectDay(0)"><span class="day-btn-name">Dom</span><span class="day-btn-type">—</span></button>
+    </div>
+
+    <div id="treino-content"></div>
+  </div>
+
+  <!-- ── TAB: PERFIL ───────────────────────────────── -->
+  <div class="screen hidden" id="tab-perfil">
+    <div class="top-header">
+      <div class="eyebrow">Mentor de Saúde & Alta Performance</div>
+      <h1>Dr. Pablo Vilela</h1>
+      <div class="sub">Nutricionista · Treinador · Especialista em Saúde Mental</div>
+    </div>
+
+    <div class="profile-hero">
+      <div class="profile-name">Pedro Figueira</div>
+      <div class="profile-sub">18 anos · 84 kg · Recomposição corporal</div>
+      <div class="profile-tags">
+        <span class="tag tag-brand">Ganho de massa</span>
+        <span class="tag tag-brand">Redução de gordura</span>
+        <span class="tag tag-muted">6x/semana</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Peso</div>
+        <div class="info-value brand">84 kg</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Idade</div>
+        <div class="info-value">18 anos</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Estresse</div>
+        <div class="info-value alert">6 / 10</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Ansiedade</div>
+        <div class="info-value">0 / 10</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Meta kcal</div>
+        <div class="info-value brand">2.700</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Hidratação</div>
+        <div class="info-value brand">3.360 ml</div>
+      </div>
+    </div>
+
+    <div class="section-title">Sono</div>
+    <div style="padding: 0 20px">
+      <div class="card" style="font-size:14px;color:var(--text-secondary);line-height:1.6">
+        Dificuldade para pegar no sono.<br>
+        <strong style="color:var(--brand)">Melatonina 0,25 mg às 19:00</strong> — não exceder a dose.
+      </div>
+    </div>
+
+    <div class="section-title">Vitaminas essenciais</div>
+    <div style="background:var(--bg-surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      <div class="vit-item"><div><div class="vit-name">Vitamina D3</div><div class="vit-benefit">Testosterona, saúde óssea, força e imunidade</div></div><div class="vit-dose">2.000 UI</div></div>
+      <div class="vit-item"><div><div class="vit-name">Vitamina B Complex</div><div class="vit-benefit">Metabolismo energético e síntese proteica</div></div><div class="vit-dose">1 cáps.</div></div>
+      <div class="vit-item"><div><div class="vit-name">Vitamina C</div><div class="vit-benefit">Colágeno, imunidade e recuperação</div></div><div class="vit-dose">500 mg</div></div>
+      <div class="vit-item"><div><div class="vit-name">Zinco</div><div class="vit-benefit">Testosterona e recuperação muscular</div></div><div class="vit-dose">25–30 mg</div></div>
+      <div class="vit-item"><div><div class="vit-name">Magnésio</div><div class="vit-benefit">Contração muscular, ATP e redução de estresse</div></div><div class="vit-dose">200 mg</div></div>
+      <div class="vit-item"><div><div class="vit-name">Ômega-3</div><div class="vit-benefit">Anti-inflamatório, articulações e foco</div></div><div class="vit-dose">2 g</div></div>
+      <div class="vit-item" style="border-bottom:none"><div><div class="vit-name">Multivitamínico A–Z</div><div class="vit-benefit">Cobertura completa para atleta</div></div><div class="vit-dose">1 cáps.</div></div>
+    </div>
+
+    <div class="section-title">Expectativas</div>
+    <div style="padding: 0 20px; margin-bottom: 20px">
+      <div class="card">
+        <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;font-weight:700">8–12 semanas</div>
+        <div style="font-size:16px;font-weight:700;line-height:1.5">Ganho de massa magra + redução progressiva de gordura com superávit controlado.</div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <div style="flex:1;min-width:80px;text-align:center;background:var(--bg-surface-2);border-radius:8px;padding:12px">
+            <div style="font-size:22px;font-weight:900;color:var(--brand)">180g</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">prot./dia mín.</div>
+          </div>
+          <div style="flex:1;min-width:80px;text-align:center;background:var(--bg-surface-2);border-radius:8px;padding:12px">
+            <div style="font-size:22px;font-weight:900;color:var(--brand)">2650</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">kcal mín./dia</div>
+          </div>
+          <div style="flex:1;min-width:80px;text-align:center;background:var(--bg-surface-2);border-radius:8px;padding:12px">
+            <div style="font-size:22px;font-weight:900;color:var(--brand)">6x</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">treinos/sem.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM NAV ────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-hoje" onclick="switchTab('hoje')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
+      </svg>
+      Hoje
+    </button>
+    <button class="nav-item" id="nav-nutri" onclick="switchTab('nutri')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 6v6l4 2"/>
+      </svg>
+      Nutrição
+    </button>
+    <button class="nav-item" id="nav-supl" onclick="switchTab('supl')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 9l-7 7-3-3"/><rect x="3" y="3" width="18" height="18" rx="3"/>
+      </svg>
+      Suplementos
+    </button>
+    <button class="nav-item" id="nav-treino" onclick="switchTab('treino')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 4v16M18 4v16M3 8h4M17 8h4M3 16h4M17 16h4"/>
+      </svg>
+      Treinos
+    </button>
+    <button class="nav-item" id="nav-perfil" onclick="switchTab('perfil')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      Perfil
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<script>
+// ─── STATE ───────────────────────────────────────────
+const TODAY = new Date().toISOString().slice(0,10);
+const DAY_OF_WEEK = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
+
+function loadState() {
+  return {
+    water:    parseInt(localStorage.getItem('water_'+TODAY) || '0'),
+    suppDone: JSON.parse(localStorage.getItem('supp_'+TODAY) || '[]'),
+    checkinDone: localStorage.getItem('checkin_date') === TODAY,
+    checkinScore: parseInt(localStorage.getItem('checkin_score') || '0'),
+    streak:   parseInt(localStorage.getItem('streak') || '0'),
+    xpTotal:  parseInt(localStorage.getItem('xp_total') || '0'),
+  };
+}
+
+let state = loadState();
+let checkinData = { sleep: null, sleepQ: 0, trained: null, intensity: null, meals: 0 };
+let currentStep = 0;
+
+// ─── TREINO DATA ──────────────────────────────────────
+const TREINOS = {
+  A: {
+    name: 'Treino A', days: 'Segunda & Quinta',
+    group: 'Peito · Tríceps · Abdômen',
+    exercises: [
+      { name: 'Aquecimento — Manguito Interno (Crossover)', series: '3x10', obs: 'Non-stop, sem descanso entre séries' },
+      { name: 'Crossover Panatta (em pé)', series: '4x12', obs: 'Progredir carga · segurar 3s no pico de contração' },
+      { name: 'Supino Inclinado Smith', series: '4x12 + 1 drop', obs: 'Última série: reduzir 20–30% da carga até exaustão' },
+      { name: 'Voador Peck Deck — Dropset Decrescente', series: '4x(10+10+10)', obs: '3 reduções de carga consecutivas sem descanso' },
+      { name: 'Supino Inclinado Roist (pegada neutra)', series: '4x12', obs: 'Isometria de 2–3s no pico de contração' },
+      { name: 'Tríceps Pulley + Tríceps Pegada Inversa', series: '4x(12+12)', obs: 'Biset · 30s de intervalo entre bisets' },
+      { name: 'Tríceps Corda', series: '4x15', obs: '30s de intervalo · foco na extensão total' },
+      { name: 'Abdominal Máquina Panatta ou Supra c/ anilha', series: '4x20', obs: 'Controle total da descida' },
+    ]
+  },
+  B: {
+    name: 'Treino B', days: 'Terça & Sexta',
+    group: 'Costas · Bíceps',
+    exercises: [
+      { name: 'Barra Fixa + Pulldown', series: '4x12', obs: 'Se não conseguir fixa: usar Graviton com assistência' },
+      { name: 'Pulley Barra Grande', series: '4x12', obs: 'Cotovelo apontado para baixo · isometria no pico' },
+      { name: 'Remada Baixa (Mapfit Triângulo)', series: '4x12', obs: 'Manter coluna neutra · puxar até o abdômen' },
+      { name: 'Face Pull (polia altura do rosto)', series: '4x12', obs: 'Retração escapular · abertura de cotovelos' },
+      { name: 'Trapézio Máquina Hammer', series: '4x15', obs: 'Movimento controlado · pausa no topo' },
+      { name: 'Rosca 21 (Barra W)', series: '3 séries', obs: '7 rep baixo + 7 rep cima + 7 completas' },
+      { name: 'Rosca Scott Máquina Roist', series: '4x15', obs: '30s de intervalo · progredir carga semanalmente' },
+      { name: 'Rosca Direta Polia Baixa + Pegada Inversa', series: '4x(10+10)', obs: 'Biset reduzindo carga · 30s de intervalo' },
+    ]
+  },
+  C: {
+    name: 'Treino C', days: 'Quarta & Sábado',
+    group: 'Pernas · Ombros',
+    exercises: [
+      { name: 'Mobilidade + Espaldar (aquecimento)', series: '—', obs: '15 segundos cada perna · ativação articular' },
+      { name: 'Agachamento Smith', series: '4x12', obs: 'Joelhos no alinhamento dos pés · isometria 2s no fundo' },
+      { name: 'Leg Press Vertical + 10 Passadas', series: '4x(12+10)', obs: 'Biset imediato · amplitude completa' },
+      { name: 'Extensora', series: '4x12', obs: 'Isometria de 2–3s no pico de extensão' },
+      { name: 'Flexora + Stiff com Anilha (Step)', series: '4x(12+12)', obs: 'Biset · usar step no stiff para ganhar amplitude' },
+      { name: 'Panturrilha Máquina', series: '4x15–20', obs: 'Amplitude completa · pausa 1s no alongamento' },
+      { name: 'Desenvolvimento Arnold + Elevação Frontal', series: '4x12', obs: 'Sentado · alternar os movimentos em sequência' },
+      { name: 'Elevação Lateral', series: '4x12', obs: 'Cotovelo ligeiramente flexionado · não ultrapassar ombro' },
+      { name: 'Elevação Frontal Polia Baixa com Corda', series: '4x12', obs: 'Controle na descida · 2s de isometria no topo' },
+    ]
+  }
+};
+
+const DAY_MAP = { 1:'A', 2:'B', 3:'C', 4:'A', 5:'B', 6:'C', 0:null };
+
+// ─── TAB NAVIGATION ──────────────────────────────────
+const TABS = ['hoje','nutri','supl','treino','perfil'];
+const TAB_PROGRESS = { hoje:20, nutri:40, supl:60, treino:80, perfil:100 };
+
+function switchTab(tab) {
+  TABS.forEach(t => {
+    document.getElementById('tab-'+t).classList.add('hidden');
+    document.getElementById('nav-'+t).classList.remove('active');
+  });
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  document.getElementById('nav-'+tab).classList.add('active');
+  document.getElementById('progress-bar').style.width = TAB_PROGRESS[tab] + '%';
+  if (tab === 'treino') renderTreino(DAY_OF_WEEK);
+}
+
+// ─── CHECK-IN ─────────────────────────────────────────
+function openCheckin() {
+  document.getElementById('checkin-modal').classList.add('open');
+  currentStep = 0;
+  renderStepDots();
+  showStep(0);
+}
+
+function showStep(n) {
+  document.querySelectorAll('.checkin-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('active');
+}
+
+function renderStepDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('dot-'+i);
+    d.className = 'step-dot';
+    if (i < currentStep) d.classList.add('done');
+    else if (i === currentStep) d.classList.add('active');
+  }
+}
+
+function nextStep(n) {
+  currentStep = n;
+  renderStepDots();
+  if (n === 3) computeScore();
+  showStep(n);
+}
+
+function selectYN(step, val) {
+  const yBtn = document.getElementById('s'+step+'-yes');
+  const nBtn = document.getElementById('s'+step+'-no');
+  yBtn.classList.remove('selected-yes','selected-no');
+  nBtn.classList.remove('selected-yes','selected-no');
+  if (val === 'yes') { yBtn.classList.add('selected-yes'); }
+  else { nBtn.classList.add('selected-no'); }
+  if (step === 0) checkinData.sleep = val;
+  if (step === 1) {
+    checkinData.trained = val;
+    document.getElementById('intensity-section').style.display = val === 'yes' ? 'block' : 'none';
+  }
+}
+
+function selectRating(step, val) {
+  if (step === 0) {
+    for (let i=1;i<=5;i++) {
+      const b = document.getElementById('r0-'+i);
+      b.classList.toggle('selected', i <= val);
+    }
+    checkinData.sleepQ = val;
+  }
+  if (step === 1) {
+    for (let i=1;i<=3;i++) {
+      document.getElementById('r1-'+i).classList.toggle('selected', i === val);
+    }
+    checkinData.intensity = val;
+  }
+}
+
+let mealCount = 0;
+function changeMeals(delta) {
+  mealCount = Math.max(0, Math.min(6, mealCount + delta));
+  document.getElementById('meal-count').textContent = mealCount;
+  for (let i=0;i<6;i++) {
+    document.getElementById('md-'+i).classList.toggle('filled', i < mealCount);
+  }
+  checkinData.meals = mealCount;
+}
+
+function computeScore() {
+  let xp = 0;
+  const breakdown = [];
+
+  const sleepXP = Math.round((checkinData.sleepQ / 5) * 25);
+  if (sleepXP > 0) { xp += sleepXP; breakdown.push(['Qualidade do sono', '+'+sleepXP+' XP']); }
+
+  if (checkinData.trained === 'yes') {
+    xp += 30; breakdown.push(['Treinou hoje', '+30 XP']);
+    const intMap = {1:5, 2:10, 3:15};
+    const intXP = intMap[checkinData.intensity] || 0;
+    if (intXP) { xp += intXP; breakdown.push(['Intensidade do treino', '+'+intXP+' XP']); }
+  }
+
+  const mealXP = checkinData.meals * 5;
+  if (mealXP > 0) { xp += mealXP; breakdown.push(['Refeições corretas ('+checkinData.meals+'x)', '+'+mealXP+' XP']); }
+
+  // Streak bonus
+  const streakBonus = Math.round(xp * 0.10 * Math.min(state.streak, 10));
+  if (state.streak > 0 && streakBonus > 0) {
+    xp += streakBonus;
+    breakdown.push(['Bônus streak ('+state.streak+' dias)', '+'+streakBonus+' XP']);
+  }
+
+  document.getElementById('score-display').textContent = xp;
+  const bd = document.getElementById('score-breakdown');
+  bd.innerHTML = breakdown.map(([l,v]) =>
+    `<div class="score-line"><span>${l}</span><span>${v}</span></div>`
+  ).join('');
+
+  // Store temp
+  checkinData._xp = xp;
+}
+
+function finishCheckin() {
+  const xp = checkinData._xp || 0;
+
+  // Update streak
+  const lastDate = localStorage.getItem('checkin_date');
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yStr = yesterday.toISOString().slice(0,10);
+  if (lastDate === yStr) {
+    state.streak += 1;
+  } else if (lastDate !== TODAY) {
+    state.streak = 1;
+  }
+
+  state.xpTotal += xp;
+  state.checkinDone = true;
+  state.checkinScore = xp;
+
+  localStorage.setItem('checkin_date', TODAY);
+  localStorage.setItem('checkin_score', xp);
+  localStorage.setItem('streak', state.streak);
+  localStorage.setItem('xp_total', state.xpTotal);
+
+  document.getElementById('checkin-modal').classList.remove('open');
+  document.getElementById('checkin-prompt-wrap').classList.add('hidden');
+  document.getElementById('checkin-done-wrap').classList.remove('hidden');
+  document.getElementById('done-score-display').textContent = '+'+xp+' XP';
+  document.getElementById('done-streak-text').textContent = state.streak + ' dias consecutivos';
+
+  updateDashboard();
+}
+
+// ─── WATER ────────────────────────────────────────────
+function addWater(ml) {
+  state.water = Math.min(state.water + ml, 5000);
+  localStorage.setItem('water_'+TODAY, state.water);
+  updateWater();
+}
+function resetWater() {
+  state.water = 0;
+  localStorage.setItem('water_'+TODAY, 0);
+  updateWater();
+}
+function updateWater() {
+  const pct = Math.min(Math.round((state.water / 3360) * 100), 100);
+  document.getElementById('water-current').textContent = state.water.toLocaleString('pt-BR');
+  document.getElementById('water-pct').textContent = pct;
+  document.getElementById('water-bar').style.width = pct + '%';
+}
+
+// ─── SUPPLEMENTS ─────────────────────────────────────
+function toggleSupp(id) {
+  const done = state.suppDone;
+  const idx = done.indexOf(id);
+  if (idx === -1) done.push(id); else done.splice(idx, 1);
+  localStorage.setItem('supp_'+TODAY, JSON.stringify(done));
+  renderSupplements();
+}
+function renderSupplements() {
+  for (let i = 0; i < 13; i++) {
+    const el = document.getElementById('supp-'+i);
+    if (!el) continue;
+    el.classList.toggle('checked', state.suppDone.includes(i));
+  }
+}
+
+// ─── TREINO RENDER ────────────────────────────────────
+let selectedDay = DAY_OF_WEEK;
+function selectDay(d) {
+  selectedDay = d;
+  renderTreino(d);
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('dbtn-'+d).classList.add('active');
+}
+
+function renderTreino(day) {
+  const key = DAY_MAP[day];
+  const container = document.getElementById('treino-content');
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('dbtn-'+day);
+  if (btn) btn.classList.add('active');
+
+  if (!key) {
+    container.innerHTML = `
+      <div class="descanso-card fade-up">
+        <div class="descanso-icon">🛌</div>
+        <div class="descanso-title">Dia de Descanso</div>
+        <div style="font-size:14px;margin-top:4px">Recuperação ativa — alongamento e caminhada leve opcional.</div>
+      </div>
+      <div class="treino-note" style="margin-top:12px">HMB pode ser tomado à noite para preservação muscular nos dias de descanso.</div>`;
+    return;
+  }
+
+  const t = TREINOS[key];
+  const exercises = t.exercises.map((e,i) => `
+    <div class="exercise-item fade-up" style="animation-delay:${i*40}ms;cursor:pointer"
+         onclick="openVideoModal('${e.name.replace(/'/g,"\\'")}')">
+      <div class="exercise-name">${e.name}</div>
+      <div class="exercise-meta">
+        <span class="exercise-series">${e.series}</span>
+        <span class="exercise-obs">${e.obs}</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--brand);font-weight:700;letter-spacing:0.06em">
+        ▶ VER EXECUÇÃO
+      </div>
+    </div>`).join('');
+
+  container.innerHTML = `
+    <div class="treino-header fade-up">
+      <div class="treino-group">${t.group}</div>
+      <div class="treino-name">${t.name} — ${t.days}</div>
+    </div>
+    <div class="treino-note">Descanso: leves = 40s–1min · Dropsets/alta intensidade = 1min30s–2min · Isometria = 2–3s no pico</div>
+    <div class="exercise-list">${exercises}</div>
+    <div class="treino-note">Aeróbio: 30 min de caminhada na esteira (vel. mín. 6.0) — preferencialmente pós-treino imediato.</div>
+    <div style="height:8px"></div>`;
+}
+
+// ─── VIDEO MODAL ─────────────────────────────────────
+function openVideoModal(exerciseName) {
+  document.getElementById('video-exercise-name').textContent = exerciseName;
+  document.getElementById('video-iframe').src =
+    'https://www.instagram.com/p/DUWhPhxlNm7/embed/';
+  document.getElementById('video-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal(e) {
+  if (e && e.target !== document.getElementById('video-modal')) return;
+  document.getElementById('video-modal').classList.remove('open');
+  document.getElementById('video-iframe').src = '';
+  document.body.style.overflow = '';
+}
+
+// ─── SUBSTITUIÇÕES ────────────────────────────────────
+function setSubs(active) {
+  document.getElementById('btn-original').classList.toggle('active', !active);
+  document.getElementById('btn-subs').classList.toggle('active', active);
+  document.querySelectorAll('.sub-group').forEach(el => {
+    el.classList.toggle('subs-hidden', !active);
+  });
+}
+
+// ─── DASHBOARD ────────────────────────────────────────
+function updateDashboard() {
+  // Date
+  const d = new Date();
+  const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  document.getElementById('hoje-date').textContent =
+    `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]}`;
+
+  // Streak / XP
+  document.getElementById('streak-display').textContent = state.streak;
+  document.getElementById('xp-display').textContent = state.xpTotal.toLocaleString('pt-BR');
+  const level = Math.floor(state.xpTotal / 500) + 1;
+  const levelXP = state.xpTotal % 500;
+  document.getElementById('level-display').textContent = level;
+  document.getElementById('level-bar').style.width = (levelXP / 500 * 100) + '%';
+
+  // Check-in state
+  if (state.checkinDone) {
+    document.getElementById('checkin-prompt-wrap').classList.add('hidden');
+    document.getElementById('checkin-done-wrap').classList.remove('hidden');
+    document.getElementById('done-score-display').textContent = '+'+state.checkinScore+' XP';
+    document.getElementById('done-streak-text').textContent = state.streak + ' dias consecutivos';
+  }
+
+  // Treino do dia
+  const key = DAY_MAP[DAY_OF_WEEK];
+  if (key) {
+    const t = TREINOS[key];
+    document.getElementById('treino-tag').textContent = 'TREINO ' + key;
+    document.getElementById('treino-group-label').textContent = t.group;
+    document.getElementById('treino-day-label').textContent = t.days;
+    document.getElementById('treino-meta').innerHTML =
+      `<span class="tag tag-brand">${t.exercises.length} exercícios</span>
+       <span class="tag tag-muted">+ Aeróbio 30min</span>`;
+  } else {
+    document.getElementById('treino-tag').textContent = 'DESCANSO';
+    document.getElementById('treino-group-label').textContent = 'Recuperação ativa';
+    document.getElementById('treino-day-label').textContent = 'Domingo';
+  }
+
+  // Next supplement by current hour
+  const hour = new Date().getHours();
+  const suppSchedule = [
+    { name: 'Vitamina D3 + B Complex + Zinco', dose: 'com a 1ª refeição', time: '06:00', h: 6 },
+    { name: 'Vaporx5 MusclePharm', dose: '1 dose — 30 min antes', time: 'Pré-treino', h: 10 },
+    { name: 'Whey + Creatina + EAA9 + HMB', dose: 'mix pós-treino', time: 'Pós-treino', h: 12 },
+    { name: 'Ômega-3 + Multi + Vit. C + Magnésio', dose: 'no almoço', time: '13:50', h: 13 },
+    { name: 'Melatonina', dose: '0,25 mg', time: '19:00', h: 19 },
+  ];
+  const next = suppSchedule.find(s => s.h > hour) || suppSchedule[0];
+  document.getElementById('next-supp-name').textContent = next.name;
+  document.getElementById('next-supp-dose').textContent = next.dose;
+  document.getElementById('next-supp-time').textContent = next.time;
+
+  // Macro rings (show as 100% meta — visual only)
+  setTimeout(() => {
+    animateRing('ring-prot', 100);
+    animateRing('ring-carb', 100);
+    animateRing('ring-fat',  100);
+    animateRing('ring-kcal', 100);
+  }, 400);
+
+  updateWater();
+}
+
+function animateRing(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const circ = 138.2;
+  const offset = circ - (circ * pct / 100);
+  el.style.strokeDashoffset = offset;
+}
+
+// ─── TODAY MARKER ON DAY SELECTOR ────────────────────
+function markToday() {
+  const btn = document.getElementById('dbtn-'+DAY_OF_WEEK);
+  if (btn) btn.classList.add('today');
+}
+
+// ─── INIT ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateDashboard();
+  renderSupplements();
+  markToday();
+});
+</script>
+</body>
+</html>
